@@ -1,0 +1,39 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+*~
+
+# Project screen layout file: Project.uvguix.username
+*.uvguix.*
+
+# Generated output files
+#/Project/MDK-ARM/Listings
+#/Project/MDK-ARM/Objects
+
+# Keilkill----------------------
+*.bak
+*.ddk
+*.edk
+*.lst
+*.lnp
+*.mpf
+*.mpj
+*.obj
+*.omf
+#*.opt  ::不允许删除JLINK的设置
+*.plg
+*.rpt
+*.tmp
+*.__i
+*.crf
+*.o
+*.d
+*.axf
+*.tra
+*.dep           
+JLinkLog.txt
+
+*.iex
+*.htm
+*.sct
+*.map
