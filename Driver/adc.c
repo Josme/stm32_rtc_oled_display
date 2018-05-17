@@ -48,11 +48,12 @@ u8 key_read(void)
 }
 
 /*** ADC1 ISR ***/
+extern u8 key_val;
 void ADC1_2_IRQHandler()
 {
 	if(ADC_GetITStatus(ADC1, ADC_IT_AWD)){				//anolog watch dog interrupt
 		if(adc_awd_isr){
-			adc_awd_isr(ADC_ISR);
+			key_val = key_read();
 		}
 		ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
 	}

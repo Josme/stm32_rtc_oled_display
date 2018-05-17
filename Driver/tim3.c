@@ -1,7 +1,7 @@
 #include "tim3.h"
 #include "led.h"
 #include "dataTrans.h"
-
+#include "adc.h"
 u16 count = 0;
 
 u8 count_1ms = 1;
@@ -23,6 +23,7 @@ u8 flag_rc_key = 0;
 u8 flag_nrf_check = 0;
 u8 flag_lock = 1;
 
+extern adc_isr_t adc_awd_isr;
 void TIM3_Init(void)
 {
 	TIM_TimeBaseInitTypeDef TIM3_BaseInitStructure;
@@ -32,7 +33,7 @@ void TIM3_Init(void)
 	
     /*** 初始化TIM3作为任务状态机控制器 ***/
     TIM3_BaseInitStructure.TIM_Prescaler = 720 - 1;						//定时器时钟预分频系数	72M / 0.72k = 100kHz
-    TIM3_BaseInitStructure.TIM_Period = 100 - 1;;						//设置计数周期	  	  100kHz / 0.1k = 1kHz
+    TIM3_BaseInitStructure.TIM_Period = 30000 - 1;;						//设置计数周期	  	  100kHz / 0.1k = 1kHz
     TIM3_BaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM3_BaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//时钟分频系数
     TIM_TimeBaseInit(TIM3, &TIM3_BaseInitStructure);
@@ -57,73 +58,7 @@ void TIM3_IRQHandler(void)
 	if(TIM_GetITStatus(TIM3,TIM_IT_Update) == SET)
 	{
 		count++;
-		
-		/** 1ms **/
-		if(!(count % count_1ms))
-		{
-			flag_rc_get = 1;
-//			RC_GetAdcData();				//读取adc原始数据
-		}
-		
-		/** 2ms **/
-		if(!(count % count_2ms))
-		{
-//			RC_DataCalculate();				//遥控数据计算
-			flag_rc_send = 1;
-		}
-		
-		/** 5ms **/
-		if(!(count % count_5ms))
-		{
-			flag_rc_key = 1;
-		}
-		
-		/** 10ms **/
-		if(!(count % count_10ms))
-		{
-			flag_rc_cal = 1;
-			flag_nrf_check =1;
-//			DT_Test();						//小飞机遥控测试
-		}
-		
-		/** 20ms **/
-		if(!(count % count_20ms))
-		{
-//			NRF_Check_Event();
-		}
-		
-		/** 50ms **/
-		if(!(count % count_50ms))
-		{
-//			flag_oled = 1;
-		}
-		
-		/** 100ms **/
-		if(!(count % count_100ms))
-		{
-
-		}
-		
-		/** 200ms **/
-		if(!(count % count_200ms))
-		{
-
-		}
-		
-		/** 500ms **/
-		if(!(count % count_500ms))
-		{
-
-		}
-		
-		/** 1000ms **/
-		if(!(count % count_1000ms))
-		{
-			flag_oled = 1;
-		}
-		
-		if(count == 1001)
-			count = 0;
+		adc_awd_isr(ADC_ISR);
 	}	
 	/*** 清除中断标志位 ***/
 	TIM_ClearITPendingBit(TIM3,TIM_IT_Update);

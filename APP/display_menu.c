@@ -5,7 +5,7 @@
 #include "delay.h"
 #include "adc.h"
 #include "usart.h"
-
+#include "rtc_ctrl.h"
 #include "task_manage.h"
 
 
@@ -41,15 +41,13 @@ uint8 page_state = 0;
 /**************** page1 ******************/
 menu_idx_t page1_idx[] = {
 
-	{1,"tx",dwm_tx_demo},
-	{2,"rx",dwm_rx_demo},
-	{3,"ss twr tx",dwm_ss_twr_init},
-	{4,"ss twr rx",dwm_ss_twr_resp},
-	{5,"ds twr tx",dwm_tx_demo},
-	{6,"ds twr rx",dwm_tx_demo},
-	{7,"setup",dwm_tx_demo},
-	
-	
+	{1,"diaplay_time",display_time},
+	{2,"set sec",set_sec},
+	{3,"set minute",set_minute},
+	{4,"set hou",set_hour},
+	{5,"set day",set_day},
+	{6,"set month",set_month},
+	{7,"set year",set_year},
 };
 uint8 top_idx = 0;
 uint8 max_idx = 0;
@@ -89,14 +87,15 @@ void disp_callback(uint8 cmd)
 		default:break;
 	}
 }
-
+uint8 key_val = KEY_UP;
 /*** key process for page2 ***/
 void disp_page2_key(void)
 {
-	switch(key_read()){
+	switch(key_val){
 		case KEY_UP:break;
 		case KEY_DOWN:break;
 		case KEY_LEFT:{
+			ui_clr();
 					if(!task_set_app((task_app_t)disp_page1_proc)){				//return to page1
 						disp_page_key_ptr = disp_page1_key;						//set the key process ptr back to page1
 						page_state = 1;
@@ -107,21 +106,18 @@ void disp_page2_key(void)
 		case KEY_CENTER:break;
 		default:break;
 	}
+	key_val = 0;
 }
 
 /*** key process for page1 ***/
+
 void disp_page1_key(void)
 {
 	uint8 sel_loc = 0;
-	uint8 key_val = 0;
+	
 
 	sel_loc = sel_idx - top_idx;
 			
-	delay_us(10);
-	key_val = key_read();
-	while(key_read() != KEY_NONE){					//avoid continue press
-		
-	}
 	
 	switch(key_val){
 		case KEY_UP:{
@@ -137,7 +133,7 @@ void disp_page1_key(void)
 			}
 		case KEY_DOWN:{
 				if(sel_loc == 3){					//selected idx on the bottom
-					if(top_idx < 3){				//still can page down
+					if(top_idx < (max_idx - 4)){				//still can page down
 						top_idx++;
 						sel_idx++;
 					}
@@ -162,10 +158,11 @@ void disp_page1_key(void)
 				if(!task_set_app((task_app_t)page1_idx[sel_idx].app))
 					disp_page_key_ptr = disp_page2_key;						//set the key process ptr to page2
 					page_state = 2;
-				break;			
+				break;
 			}
 		default:flag_fresh = 0;break;										//flag  --> do not refresh the display
 	}
+	key_val = 0;
 	
 }
 

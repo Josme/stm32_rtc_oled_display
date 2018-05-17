@@ -26,21 +26,25 @@ int main()
 	delay_init(72);
 	NVIC_Configuration();
 	Uart1_Init(115200);
-	TIM3_Init();
+	
 	adc_init();
+
 	delay_ms(100);	
 	OLED_Init();
-
+  
 	
 	OLED_Fill(0,0,127,63,1);
 	OLED_Fill(1,1,126,62,0);
 
 
 	OLED_Clear();
+		display_init();
+	task_init((task_app_t)disp_page_proc_ptr);
+TIM3_Init();
 	
 	while(1)
 	{
-	//	task_loop();
+		task_loop();
 	}
 
 }

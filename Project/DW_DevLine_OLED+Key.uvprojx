@@ -519,6 +519,16 @@
               <FileType>1</FileType>
               <FilePath>..\System\main.c</FilePath>
             </File>
+            <File>
+              <FileName>task_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\task_manage.c</FilePath>
+            </File>
+            <File>
+              <FileName>display_menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\display_menu.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

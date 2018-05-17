@@ -1,5 +1,7 @@
 #include "rtc_ctrl.h"
 #include "oled.h"
+#include "adc.h"
+#include "delay.h"
  rtc_struct pDate;
 
 
@@ -46,7 +48,7 @@ void RTC_Configuration(void)
   while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
   {}
   /* Select the RTC Clock Source */
-  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 
   /* Enable RTC Clock */
   RCC_RTCCLKCmd(ENABLE);
@@ -64,25 +66,20 @@ void RTC_Configuration(void)
   RTC_WaitForLastTask();
 
   /* Set RTC prescaler: set RTC period to 1sec */
-  RTC_SetPrescaler(40000);
+  RTC_SetPrescaler(32768);
 
   /* Wait until last write operation on RTC registers has finished */
   RTC_WaitForLastTask();
 }
 void RTC_IRQHandler(void)
 { 
-	 uint8_t dis_buf[20];
+	 
     if (RTC_GetITStatus(RTC_IT_SEC) == SET)
     {
         RTC_ClearITPendingBit(RTC_IT_SEC);
         RTC_GetDate(&pDate);
         //printf("%d-%2d-%2d-%d\t%02d:%02d:%02d\n", pDate.year, pDate.month, pDate.day, pDate.week, pDate.hour, pDate.minute, pDate.sec);
-        sprintf(dis_buf,"%d", pDate.year);
-			  OLED_ShowString(0,0,dis_buf,16,1);
-			  sprintf(dis_buf,"%d-%2d-%d%",pDate.month, pDate.day, pDate.week);
-			  OLED_ShowString(0,16,dis_buf,16,1);
-				sprintf(dis_buf,"%2d:%02d:%02d", pDate.hour, pDate.minute, pDate.sec);
-			  OLED_ShowString(0,32,dis_buf,16,1);
+       
 		}
 }
 /******************************************************/
@@ -259,4 +256,145 @@ uint8_t RTC_GetDate(rtc_struct * thisDate)
     thisDate->minute = (Count%3600)/60;
     thisDate->sec = (Count%3600)%60;
     return 0;
+}
+extern u8 key_val;
+void display_time(void)
+{
+		uint8_t dis_buf[20];
+		sprintf(dis_buf,"Year:%d", pDate.year);
+		OLED_ShowString(0,0,dis_buf,16,1);
+		sprintf(dis_buf,"Month:%2d Day:%2d%",pDate.month, pDate.day);
+		OLED_ShowString(0,16,dis_buf,16,1);
+		sprintf(dis_buf,"Week:%d ",pDate.week);
+		OLED_ShowString(0,32,dis_buf,16,1);
+
+	sprintf(dis_buf,"Time:%2d:%02d:%02d", pDate.hour, pDate.minute, pDate.sec);
+		OLED_ShowString(0,48,dis_buf,16,1);
+}
+void set_hour()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.hour++;
+		pDate.hour%=24;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.hour--;
+		pDate.hour%=24;
+	}
+		  sprintf(dis_buf,"hour:%2d", pDate.hour);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
+}
+void set_sec()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.sec++;
+		pDate.sec%=60;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.sec--;
+		pDate.sec%=60;
+	}
+		  sprintf(dis_buf,"sec:%2d", pDate.sec);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
+}
+
+void set_minute()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.minute++;
+		pDate.minute%=60;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.minute--;
+		pDate.minute%=60;
+	}
+		  sprintf(dis_buf,"minute:%2d", pDate.minute);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
+}
+void set_day()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.day++;
+		pDate.day%=32;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.day--;
+		pDate.day%=32;
+	}
+		  sprintf(dis_buf,"day:%2d", pDate.day);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
+}
+void set_month()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.month++;
+		pDate.month%=13;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.month--;
+		pDate.month%=13;
+	}
+		sprintf(dis_buf,"month:%2d", pDate.month);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
+}
+
+void set_year()
+{
+	  uint8_t dis_buf[20];
+
+	key_val = key_read();
+	if(key_val ==KEY_UP)
+	{
+		pDate.year++;
+	}
+		if(key_val ==KEY_DOWN)
+	{
+		pDate.year--;
+
+	}
+		  sprintf(dis_buf,"year:%2d", pDate.year);
+		OLED_ShowString(0,0,dis_buf,16,1);
+	delay_ms(100);
+	RTC_SetSec(pDate.year, pDate.month, pDate.day, pDate.hour, pDate.minute, pDate.sec);
+  
 }

@@ -24,6 +24,8 @@
 ".\objects\adc.o"
 ".\objects\rtc_ctrl.o"
 ".\objects\main.o"
+".\objects\task_manage.o"
+".\objects\display_menu.o"
 --strict --scatter ".\Objects\DWM1000_Dev.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
